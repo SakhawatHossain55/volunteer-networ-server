@@ -20,6 +20,7 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 client.connect(err => {
   const eventCollection = client.db("volunteer").collection("events");
+  const donationCollection = client.db("volunteer").collection("donation");
 
   app.get('/events', (req, res) => {
     eventCollection.find()
@@ -27,14 +28,29 @@ client.connect(err => {
       res.send(items)
     })
   })
+  app.get('/singleEvent/:id', (req, res) => {
+  const id = ObjectID(req.params.id)
+  eventCollection.find({_id: id})
+      .toArray((err, items) => {
+          res.send(items)
+      })
+})
 
-  app.post('/addEvent', (req, res) => {
+
+  app.post('/donation', (req, res) => {
     const newEvent = req.body;
     console.log("adding new event: ", newEvent);
-    eventCollection.insertOne(newEvent)
+    donationCollection.insertOne(newEvent)
     .then(result => {
       console.log('inserted count', result.insertedCount);
        res.send(result. insertCode > 0)
+    })
+  })
+
+  app.get('/allDonation', (req, res) => {
+    donationCollection.find({})
+    .toArray((err, items) => {
+      res.send(items)
     })
   })
 
@@ -44,7 +60,6 @@ client.connect(err => {
     eventCollection.findOneAndDelete({_id: id})
     .then(documents => res.send(!!documents.value))
   })
-  // client.close();
 });
 
 
