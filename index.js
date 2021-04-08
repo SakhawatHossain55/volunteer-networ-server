@@ -39,27 +39,43 @@ client.connect(err => {
 
   app.post('/donation', (req, res) => {
     const newEvent = req.body;
-    console.log("adding new event: ", newEvent);
+    // console.log("adding new event: ", newEvent);
     donationCollection.insertOne(newEvent)
     .then(result => {
-      console.log('inserted count', result.insertedCount);
+      // console.log('inserted count', result.insertedCount);
        res.send(result. insertCode > 0)
     })
   })
 
   app.get('/allDonation', (req, res) => {
-    donationCollection.find({})
+    console.log(req.query.email);
+    donationCollection.find({email: req.query.email})
     .toArray((err, items) => {
       res.send(items)
     })
   })
 
-  app.delete('deleteEvent/:id', (req, res) => {
-    const id = ObjectID(req.params.id)
-    console.log('delete this', id);
-    eventCollection.findOneAndDelete({_id: id})
-    .then(documents => res.send(!!documents.value))
+  app.post('/addEvent', (req, res) => {
+    const newEvent = req.body;
+    console.log('adding new event: ', newEvent)
+    eventCollection.insertOne(newEvent)
+    .then(result => {
+        console.log('inserted count', result.insertedCount);
+        res.send(result.insertedCount > 0)
+    })
+})
+
+  app.delete('/delete/:id', (req, res) => {
+    // console.log(req.params.id);
+    const id = ObjectID(req.params.id);
+    // console.log(id);
+    donationCollection.findOneAndDelete({_id: id})
+    .then( result => {
+      console.log(result);
+        // res.send(!!result.value)
+    })
   })
+
 });
 
 
